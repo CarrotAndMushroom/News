@@ -6,7 +6,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,6 +35,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private ListView mListview;
+    private DrawerLayout mDrawerLayout;
     private static String URL="http://news-at.zhihu.com/api/4/news/latest";
 
     @Override
@@ -40,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
+            case android.R.id.home:
+                mDrawerLayout.openDrawer(GravityCompat.START);
+                break;
             case R.id.about_app:
                 Toast.makeText(this, "这是一个简单而又难看的新闻app，原谅我目前只能开发成这样。", Toast.LENGTH_SHORT).show();
                 break;
@@ -57,7 +67,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mListview=(ListView) findViewById(R.id.lv_main);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        mDrawerLayout=(DrawerLayout) findViewById(R.id.drawer_layout);
+        NavigationView navView = (NavigationView) findViewById(R.id.nav_view);
+        setSupportActionBar(toolbar);
         new NewsAsyncTask().execute(URL);
+        ActionBar actionBar=getSupportActionBar();
+        if (actionBar!=null){
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(R.mipmap.ic_menu);
+        }
+        navView.setCheckedItem(R.id.nav_friends);
+        navView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener(){
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                mDrawerLayout.closeDrawers();
+                return true;
+            }
+        });
     }
     private List<NewsBean> getJsonData(String url){
         List<NewsBean> newsBeanList= new ArrayList<>();
